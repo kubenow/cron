@@ -2,14 +2,13 @@
 # Script to delete old unpaired snapshots
 
 # Installing necessary tool for the script: awscli and jq
-sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get update
 sudo apt-get install awscli jq -y
 
 # Current list of regions we work with
 aws_regions=("ca-central-1" "eu-central-1" "eu-west-1" "eu-west-2" "us-east-1" "us-east-2" "us-west-1" "us-west-2")
 
 echo -e "\n----------------------------------\n   $(date)   \n----------------------------------"
-#del_date=$(date +"%Y-%m-%d" --date="1 days ago")
 echo -e "Amazon Web Services - Looking for old unpaired snaposhots:\n "
 
 # Now we start the process of deregistering the old Kubenow AMI across all the other regions

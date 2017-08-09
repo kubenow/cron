@@ -5,7 +5,7 @@
 set -e
 
 # Installing necessary tool for the script: awscli and jq
-sudo apt-get update && sudo apt-get upgrade
+sudo apt-get update
 sudo apt-get install awscli jq -y
 
 # Current list of regions we work with
@@ -23,11 +23,11 @@ for reg in ${aws_regions[*]}; do
         printf "Current region is: %s\n" "$AWS_DEFAULT_REGION"
         
         # Extracting both KubeNow images that are flagged as "test" or "current"
-        aws ec2 describe-images --filters "Name=name,Values=kubenow-*-*" > /tmp/aws_out_images.json
+        aws ec2 describe-images --filters "Name=name,Values=kubenow-*-*" "Name=owner-id,Values=105135433346" > /tmp/aws_out_images.json
         tot_no_amis=$(grep -c -i imageid < /tmp/aws_out_images.json)
 
         if [ "$tot_no_amis" -gt "0" ]; then
-            # Finding Image IDs of AMIs older than 3 days which needed to be deregistered
+            # Finding Image IDs of AMIs older than 1 day which needed to be deregistered
             counter_del_img=0
             counter_del_snap=0
             index=0
@@ -35,7 +35,7 @@ for reg in ${aws_regions[*]}; do
 
                 img_date=$(jq ".Images[$index] | .CreationDate" /tmp/aws_out_images.json | sed -e 's/^"//' -e 's/"$//' -e 's/T.*//')
 
-                if [ "$img_date" == "$del_date" ]; then
+                if [[ ! "$img_date" > "$del_date" ]]; then
                     # Extracting AMI's "Name" and "ImageId"
                     name=$(jq ".Images[$index] | .Name" /tmp/aws_out_images.json | sed -e 's/^"//' -e 's/"$//')
                     ami_id_to_deregister=$(jq ".Images[$index] | .ImageId" /tmp/aws_out_images.json | sed -e 's/^"//' -e 's/"$//')
@@ -69,35 +69,41 @@ for reg in ${aws_regions[*]}; do
         fi
 done
 
-# Now taking care of the S3 bucket for KubeNow images. Extracting List of objects
-echo -e "AWS S3 - Looking for old KubeNow bucket objects:\n"
-aws s3 ls s3://kubenow-us-east-1 --region us-east-1 --human-readable | grep -E 'kubenow-v([0-9]*)([ab0-9]*)-([0-9]*)-([a-z0-9]*)-([test]*)([current]*).qcow2' > /tmp/aws_s3_objs.txt
+# Now taking care of the S3 buckets for KubeNow images
+s3_buckets=("us-east-1" "eu-central-1")
 
-no_obj_to_check=$(wc -l < /tmp/aws_s3_objs.txt)
-echo -e "No of bucket object to be checked: $no_obj_to_check\n"
+#  Extracting List of objects from each bucket
+for buck in ${s3_buckets[*]}; do
 
-counter_del_s3_obj=0
+    echo -e "AWS S3 $buck - Looking for old KubeNow bucket objects:\n"
+    aws s3 ls s3://kubenow-$buck --region $buck --human-readable | grep -E 'kubenow-v([0-9]*)([ab0-9]*)-([0-9]*)-([a-z0-9]*)-([test]*)([current]*).qcow2([.md5]*)' > /tmp/aws_s3_objs.txt
 
-if [ "$no_obj_to_check" -gt "0" ]; then
+    no_obj_to_check=$(wc -l < /tmp/aws_s3_objs.txt)
+    echo -e "No of bucket object to be checked: $no_obj_to_check\n"
 
-    while read -r line; do
-        obj_date=$(echo $line | awk {'print $1'})
-        obj_name=$(echo $line | awk {'print $5'})
-    
-        if [ "$obj_date" == "$del_date" ]; then
-            echo -e "Following old KubeNow bucket object dated: $obj_date is found\nName: $obj_name\n"
-            echo -e "Starting the delete bucket object: $obj_name...\n"
-            aws s3 rm "s3://kubenow-us-east-1/$obj_name"
-            counter_del_s3_obj=$((counter_del_s3_obj+1))
+    counter_del_s3_obj=0
+
+    if [ "$no_obj_to_check" -gt "0" ]; then
+
+        while read -r line; do
+            obj_date=$(echo $line | awk {'print $1'})
+            obj_name=$(echo $line | awk {'print $5'})
+
+            if [[ ! "$obj_date" > "$del_date" ]]; then
+                echo -e "Following old KubeNow bucket object dated: $obj_date is found\nName: $obj_name\n"
+                echo -e "Starting the delete bucket object: $obj_name...\n"
+                aws s3 rm "s3://kubenow-$buck/$obj_name" --region $buck
+                counter_del_s3_obj=$((counter_del_s3_obj+1))
+            fi
+        done < /tmp/aws_s3_objs.txt
+
+        if [ "$counter_del_s3_obj" == "0" ]; then
+            echo -e "No old bucket objects dated $del_date were found \n"
         fi
-    done < /tmp/aws_s3_objs.txt
-    
-    if [ "$counter_del_s3_obj" == "0" ]; then
-        echo -e "No old bucket objects dated $del_date were found \n"
+
+    else
+       echo -e "\nNo KubeNow bucket objects flagged as test or current found"
     fi
-    
-else
-   echo -e "\nNo KubeNow bucket objects flagged as test or current found"
-fi
+done
 
 echo -e "\nNo of deleted of AMI: $counter_del_img\nNo of deleted snapshots: $counter_del_snap\nNo of deleted bucket object: $counter_del_s3_obj\nDone.\n"

@@ -8,7 +8,8 @@ set -e
 sudo sed -i /etc/hosts -e "s/^127.0.0.1 localhost$/127.0.0.1 localhost $(hostname)/"
 
 # Installing necessary tool for the script: awscli and jq
-sudo apt-get update && sudo apt-get install python-dev python-pip -y
+sudo apt-get update
+sudo apt-get install python-dev python-pip -y
 pip install --upgrade pip
 sudo pip install python-glanceclient
 
@@ -23,22 +24,22 @@ tot_no_images=$(wc -l < /tmp/os_out_images.txt)
 
 if [ "$tot_no_images" -gt "0" ]; then
     counter_del_img=0
-    # Finding Image IDs of AMIs older than 3 days which needed to be deregistered
+    # Finding Image IDs of AMIs older than 1 day which needed to be deregistered
     while read -r line; do
         glance image-show "$(echo "$line" | awk '{print $1}')" > /tmp/os_img_details.txt
         img_date=$(grep -i "created_at" < /tmp/os_img_details.txt | awk '{print $4}' | sed -e 's/T.*//')
 
-        if [ "$img_date" == "$del_date" ]; then
+        if [[ ! "$img_date" > "$del_date" ]]; then
             # Extracting image's "Name" and "ImageId"
             id_to_delete=$(echo "$line" | awk '{print $1}')
             name=$(echo "$line" | awk '{print $2}')
-            echo -e "Following old images dated $img_date is found \nName: $name \nID:$id_to_delete"           
+            echo -e "Following old image dated $img_date is found \nName: $name \nID:$id_to_delete"           
 
             # Deleting old KubeNow Image
-            printf "Starting to delete KubewNow image: %s...\n\n" "$id_to_delete"
+            printf "Starting to delete old KubewNow image: %s...\n\n" "$id_to_delete"
             glance image-delete $id_to_delete
             counter_del_img=$((counter_del_img+1))
-            echo -e "Keep looking for any other old KubeNow images...\n"
+            echo -e "Keep looking for any other old KubeNow image...\n"
         fi
     done < /tmp/os_out_images.txt
     

@@ -16,7 +16,7 @@ echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 
 # Update the package list and install the Cloud SDK
-sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get update
 sudo apt-get install google-cloud-sdk jq -y
 
 # Performing authentication in GCE
@@ -36,12 +36,12 @@ tot_no_images=$(grep -c -i "name" < /tmp/gce_out_images.json)
 
 if [ "$tot_no_images" -gt "0" ]; then
     counter_del_img=0
-    # Finding Image names of images older than 3 days which needed to be deregistered
+    # Finding Image names of images older than 1 day which needed to be deregistered
     index=0
     while [ "$index" -lt "$tot_no_images" ]; do
         img_date=$(jq ".Images[$index] | .creationTimestamp" /tmp/gce_out_images.json | sed -e 's/^"//' -e 's/"$//' -e 's/T.*//')
 
-        if [ "$img_date" == "$del_date" ]; then
+        if [[ ! "$img_date" > "$del_date" ]]; then
             # Extracting image's "Name"
             name=$(jq ".Images[$index] | .name" /tmp/gce_out_images.json | sed -e 's/^"//' -e 's/"$//')
             echo -e "Following old image dated $img_date is found \nName: $name\n"               
@@ -74,7 +74,7 @@ if [ "$tot_no_bk_obj" -gt "0" ]; then
         gsutil ls -l "$line" | awk 'NR==1{print $3, $2}' > /tmp/gce_obj_details.txt
         img_date=$(awk '{print $2}' /tmp/gce_obj_details.txt | sed -e 's/T.*//')
 
-        if [ "$img_date" == "$del_date" ]; then
+        if [[ ! "$img_date" > "$del_date" ]]; then
             # Extracting bkucet object's "name"
             url=$(awk '{print $1}' /tmp/gce_obj_details.txt)
             name=$(awk '{print $1}' /tmp/gce_obj_details.txt | sed 's/gs:\/\/kubenow-images\///g')
