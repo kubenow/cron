@@ -1,5 +1,8 @@
 language: python
 
+notifications:
+  email: false
+
 sudo: required
 
 env:
@@ -7,7 +10,7 @@ env:
         #- HOST_CLOUD=gce_clean_images.sh
         - HOST_CLOUD=aws_clean_images.sh
         #- HOST_CLOUD=os_clean_images.sh
-        - AWS_ONLY=aws_del_old_snaps.sh
+        #- AWS_ONLY=aws_del_old_snaps.sh
 
 addons:
     apt:
@@ -15,6 +18,8 @@ addons:
             - debian-sid
         packages:
             - shellcheck # code review tool for bash script
+            
+install: true
 
 before_script:
     # Check bash scripts
@@ -23,7 +28,6 @@ before_script:
 script:
     # Finally executing the scripts  
     - travis_retry bash $HOST_CLOUD
-
-after_script:
     # Execute different script for AWS
-    - travis retry bash $AWS_ONLY
+    #- travis retry bash $AWS_ONLY
+    
