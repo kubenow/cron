@@ -37,7 +37,7 @@ if [ "$tot_no_images" -gt "0" ]; then
 
             # Deleting old KubeNow Image
             printf "Starting to delete old KubewNow image: %s...\n\n" "$id_to_delete"
-            glance image-delete $id_to_delete
+            glance image-delete "$id_to_delete"
             counter_del_img=$((counter_del_img+1))
             echo -e "Keep looking for any other old KubeNow image...\n"
         fi

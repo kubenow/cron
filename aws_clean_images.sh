@@ -76,7 +76,7 @@ s3_buckets=("us-east-1" "eu-central-1")
 for buck in ${s3_buckets[*]}; do
 
     echo -e "AWS S3 $buck - Looking for old KubeNow bucket objects:\n"
-    aws s3 ls s3://kubenow-$buck --region $buck --human-readable | grep -E 'kubenow-v([0-9]*)([ab0-9]*)-([0-9]*)-([a-z0-9]*)-([test]*)([current]*).qcow2([.md5]*)' > /tmp/aws_s3_objs.txt
+    aws s3 ls s3://kubenow-"$buck" --region "$buck" --human-readable | grep -E 'kubenow-v([0-9]*)([ab0-9]*)-([0-9]*)-([a-z0-9]*)-([test]*)([current]*).qcow2([.md5]*)' > /tmp/aws_s3_objs.txt
 
     no_obj_to_check=$(wc -l < /tmp/aws_s3_objs.txt)
     echo -e "No of bucket object to be checked: $no_obj_to_check\n"
@@ -86,13 +86,13 @@ for buck in ${s3_buckets[*]}; do
     if [ "$no_obj_to_check" -gt "0" ]; then
 
         while read -r line; do
-            obj_date=$(echo $line | awk {'print $1'})
-            obj_name=$(echo $line | awk {'print $5'})
+            obj_date=$(echo "$line" | awk '{print $1}')
+            obj_name=$(echo "$line" | awk '{print $5}')
 
             if [[ ! "$obj_date" > "$del_date" ]]; then
                 echo -e "Following old KubeNow bucket object dated: $obj_date is found\nName: $obj_name\n"
                 echo -e "Starting the delete bucket object: $obj_name...\n"
-                aws s3 rm "s3://kubenow-$buck/$obj_name" --region $buck
+                aws s3 rm "s3://kubenow-$buck/$obj_name" --region "$buck"
                 counter_del_s3_obj=$((counter_del_s3_obj+1))
             fi
         done < /tmp/aws_s3_objs.txt

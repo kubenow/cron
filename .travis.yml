@@ -1,0 +1,29 @@
+language: python
+
+sudo: required
+
+env:
+    matrix:
+        #- HOST_CLOUD=gce_clean_images.sh
+        - HOST_CLOUD=aws_clean_images.sh
+        #- HOST_CLOUD=os_clean_images.sh
+        - AWS_ONLY=aws_del_old_snaps.sh
+
+addons:
+    apt:
+        sources:
+            - debian-sid
+        packages:
+            - shellcheck # code review tool for bash script
+
+before_script:
+    # Check bash scripts
+    - shellcheck $(find . -type f -name "*.sh")
+  
+script:
+    # Finally executing the scripts  
+    - travis_retry bash $HOST_CLOUD
+
+after_script:
+    # Execute different script for AWS
+    - travis retry bash $AWS_ONLY

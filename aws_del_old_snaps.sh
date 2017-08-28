@@ -32,7 +32,7 @@ for reg in ${aws_regions[*]}; do
             while [ "$index" -lt "$tot_no_snaps" ]; do
                  
                 # Extracting AMI's ID from snapshot's description field
-                ami_id_to_check=$(jq ".Snapshots[$index] | .Description" /tmp/aws_snaps.json | egrep -o -m1 "ami-([a-z0-9]*)")
+                ami_id_to_check=$(jq ".Snapshots[$index] | .Description" /tmp/aws_snaps.json | grep -E -o -m1 "ami-([a-z0-9]*)")
                 snap_id=$(jq ".Snapshots[$index] | .ID" /tmp/aws_snaps.json | sed -e 's/^"//' -e 's/"$//')
 
                 # When copying an AMI from one region to another, both the source and the destination AMI ids are listed. We need to keep and check only first id
@@ -43,7 +43,7 @@ for reg in ${aws_regions[*]}; do
                     echo -e "Oops. Something went wrong at this point.\nNo of AMI ids to be checked seems zero. This should not be the case\n"
                     exit 1
                 elif [ "$no_of_rel_amis" -gt "1" ]; then
-                    ami_id_to_check=$(echo "$ami_id_to_check" | awk NR==1{'print $1'})
+                    ami_id_to_check=$(echo "$ami_id_to_check" | awk NR==1'{print $1}')
                 fi
                  
                 echo -e "Snapshot id: $snap_id"
@@ -56,7 +56,7 @@ for reg in ${aws_regions[*]}; do
 
                 if [ "$aws_exit_code" == "0" ]; then
                     echo -e "AMI id: $ami_id_to_check still exists. Snapshot id: $snap_id will not be deleted.\n"
-                elif [ "$aws_exit_code" == "255" ] && [ -n "aws_string_err" ]; then
+                elif [ "$aws_exit_code" == "255" ] && [ -n "$aws_string_err" ]; then
                     echo -e "AMI id: $ami_id_to_check does not exist anymore. Snapshot id: $snap_id will be deleted.\n"
                     echo -e "Deleting the snapshots id: $snap_id \n"
                     aws ec2 delete-snapshot --snapshot-id "$snap_id"

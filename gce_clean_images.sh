@@ -20,8 +20,7 @@ sudo apt-get update
 sudo apt-get install google-cloud-sdk jq -y
 
 # Performing authentication in GCE
-export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gce-key.json"
-gcloud auth activate-service-account 12202776487-compute@developer.gserviceaccount.com --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --project phenomenal-1145
+gcloud auth activate-service-account 12202776487-compute@developer.gserviceaccount.com --key-file="$GCE_KEY" --project phenomenal-1145
 
 echo -e "----------------------------------\n   $(date)   \n----------------------------------"
 del_date=$(date +"%Y-%m-%d" --date="1 days ago")
