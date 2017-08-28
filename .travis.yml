@@ -1,4 +1,4 @@
-language: python
+language: C
 
 notifications:
   email: false
@@ -7,27 +7,27 @@ sudo: required
 
 env:
     matrix:
-        #- HOST_CLOUD=gce_clean_images.sh
+        - HOST_CLOUD=gce_clean_images.sh
         - HOST_CLOUD=aws_clean_images.sh
-        #- HOST_CLOUD=os_clean_images.sh
-        #- AWS_ONLY=aws_del_old_snaps.sh
+        - HOST_CLOUD=os_clean_images.sh
 
-addons:
-    apt:
-        sources:
-            - debian-sid
-        packages:
-            - shellcheck # code review tool for bash script
-            
+before_install:
+    # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
+    # To be removed in future revisions once bug is solved
+    - sudo rm -f /etc/boto.cfg
+
 install: true
 
 before_script:
-    # Check bash scripts
+    # Installing common tools (pip and jq) and check bash scripts
+    - curl -O https://bootstrap.pypa.io/get-pip.py
+    - python get-pip.py --user
+    - export PATH=~/.local/bin:$PATH
+    - pip install --upgrade pip
+    - sudo apt-get install shellcheck jq -y
     - shellcheck $(find . -type f -name "*.sh")
   
 script:
-    # Finally executing the scripts  
-    - travis_retry bash $HOST_CLOUD
-    # Execute different script for AWS
-    #- travis retry bash $AWS_ONLY
+    # Finally executing the scripts
+    - bash $HOST_CLOUD
     

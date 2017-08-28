@@ -2,8 +2,7 @@
 # Script to delete old unpaired snapshots
 
 # Installing necessary tool for the script: awscli and jq
-sudo apt-get update
-sudo apt-get install awscli jq -y
+pip install awscli --upgrade --user
 
 # Current list of regions we work with
 aws_regions=("ca-central-1" "eu-central-1" "eu-west-1" "eu-west-2" "us-east-1" "us-east-2" "us-west-1" "us-west-2")
@@ -23,11 +22,12 @@ for reg in ${aws_regions[*]}; do
         sed -i '1s/^/{"Snapshots":/' /tmp/aws_snaps.json
         sed -i "$ a }" /tmp/aws_snaps.json
         tot_no_snaps=$(grep -c -i ID < /tmp/aws_snaps.json)
+        counter_del_snap=0
 
         if [ "$tot_no_snaps" -gt "0" ]; then
             # Finding if the AMI which the current snapshot has been created for still exist. If not, we can delete snapshot
             echo -e "Total of current snapshot is: $tot_no_snaps\n"
-            counter_del_snap=0
+
             index=0
             while [ "$index" -lt "$tot_no_snaps" ]; do
                  
@@ -72,8 +72,6 @@ for reg in ${aws_regions[*]}; do
         else
             echo -e "There are no available snapshots in the current region: $AWS_DEFAULT_REGION"
         fi
+        
+        echo -e "\nNo of deleted of snapshots: $counter_del_snap\nDone.\n"
 done
-
-echo -e "\nNo of deleted of snapshots: $counter_del_snap\nDone.\n"
-
-exit $?
