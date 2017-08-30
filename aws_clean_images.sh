@@ -5,12 +5,12 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
+# Installing necessary tool for the script: awscli and jq
+pip install awscli --upgrade --user
+
 # Execute different script only for AWS and before main ones
 # Reason is to avoid concurrent APIs call (e.g. deletion of an AMI and checking if that AMI exists)
 bash aws_del_old_snaps.sh
-
-# Installing necessary tool for the script: awscli and jq
-pip install awscli --upgrade --user
 
 # Current list of regions we work with
 aws_regions=("ca-central-1" "eu-central-1" "eu-west-1" "eu-west-2" "us-east-1" "us-east-2" "us-west-1" "us-west-2")

@@ -28,6 +28,5 @@ before_script:
     - shellcheck $(find . -type f -name "*.sh")
   
 script:
-    # Finally executing the scripts
     - bash $HOST_CLOUD
     

@@ -1,9 +1,6 @@
 #!/bin/bash
 # Script to delete old unpaired snapshots
 
-# Installing necessary tool for the script: awscli and jq
-pip install awscli --upgrade --user
-
 # Current list of regions we work with
 aws_regions=("ca-central-1" "eu-central-1" "eu-west-1" "eu-west-2" "us-east-1" "us-east-2" "us-west-1" "us-west-2")
 
