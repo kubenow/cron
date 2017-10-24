@@ -20,13 +20,12 @@ install: true
 
 before_script:
     # Installing common tools (pip and jq) and check bash scripts
-    - curl -O https://bootstrap.pypa.io/get-pip.py
-    - python get-pip.py --user
-    - export PATH=~/.local/bin:$PATH
+    - sudo apt-get update
+    - sudo apt-get install shellcheck jq python-pip -y
+    - pip -V
     - pip install --upgrade pip
-    - sudo apt-get install shellcheck jq -y
     - shellcheck $(find . -type f -name "*.sh")
   
 script:
-    - bash $HOST_CLOUD
+    - ./$HOST_CLOUD
     
