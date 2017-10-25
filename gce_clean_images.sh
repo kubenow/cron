@@ -33,11 +33,12 @@ del_date=$(date +"%Y-%m-%d" --date="1 days ago")
 echo -e "Google Cloud Engine - Looking for old KubeNow's images:\n "
 
 # Extracting both KubeNow images that are flagged as "test" or "current"
-gcloud compute images list --filter='Name:kubenow-*-current OR Name:kubenow-*-test' --format=json > /tmp/gce_out_images.json
+gcloud compute images list --filter='Name:kubenow-*-current OR Name:kubenow-*-test' --format=json | tee /tmp/gce_out_images.json
+
 sed -i '1s/^/{"Images":/' /tmp/gce_out_images.json
 sed -i "$ a }" /tmp/gce_out_images.json
 
-# Reason why we are not directly using grep -c -i "name" is because of the set -e command
+# Reason why we are NOT directly using grep -c -i "name" is because of the set -e command
 # In fact when there are not test or current images, the counter is correctly set to 0, but grep's exit code is -1
 tot_no_images=$(grep -i "name" < /tmp/gce_out_images.json | wc -l)
 counter_del_img=0

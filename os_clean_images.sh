@@ -13,8 +13,10 @@ echo -e "----------------------------------\n   $(date)   \n--------------------
 del_date=$(date +"%Y-%m-%d" --date="1 days ago")
 echo -e "Openstack - Looking for old KubewNow images:\n "
 
-# Extracting both KubeNow images that are flagged as "test" or "current"
-glance image-list | grep -E 'kubenow-v([0-9]*)-([0-9]*)-([a-z0-9]*)-([test]*)([current]*)' | awk '{print $2, $4}' > /tmp/os_out_images.txt
+# Extracting both KubeNow images that are flagged as "test" or "current".
+# Using tee (which almost always return 0) because of set -e at the beginning and possible grep's exit code -1 here.
+glance image-list | grep -E 'kubenow-v([0-9]*)(a?b?)([0-9]*)-([0-9]*)-([a-z0-9]*)-([test]*)([current]*)' | awk '{print $2, $4}' | tee /tmp/os_out_images.txt
+
 tot_no_images=$(wc -l < /tmp/os_out_images.txt)
 counter_del_img=0
 
