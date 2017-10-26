@@ -10,6 +10,7 @@ env:
         - HOST_CLOUD=gce_clean_images.sh
         - HOST_CLOUD=aws_clean_images.sh
         - HOST_CLOUD=os_clean_images.sh
+        - HOST_CLOUD=az_clean_images.sh
 
 before_install:
     # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940

@@ -30,7 +30,8 @@ for reg in ${aws_regions[*]}; do
         printf "Current region is: %s\n" "$AWS_DEFAULT_REGION"
         
         # Extracting both KubeNow images that are flagged as "test" or "current"
-        aws ec2 describe-images --filters "Name=name,Values=kubenow-*-*" "Name=owner-id,Values=105135433346" > /tmp/aws_out_images.json
+        # Using tee and wc -l (which often returns 0) because of set -e. In case aws and grep return 1
+        aws ec2 describe-images --filters "Name=name,Values=kubenow-*-*" "Name=owner-id,Values=105135433346" | tee /tmp/aws_out_images.json
         tot_no_amis=$(grep -i "imageid" < /tmp/aws_out_images.json | wc -l)
         counter_del_img=0
         counter_del_snap=0
