@@ -26,7 +26,21 @@ before_script:
     - pip -V
     - pip install --upgrade pip
     - shellcheck $(find . -type f -name "*.sh")
-  
+
 script:
     - ./$HOST_CLOUD
-    
+
+notifications:
+  email: false
+  slack:
+    secure: >
+      plMWyTiljmwpUuA6mb8Q914+M25wxmuz+j3fgb2ZOmRsUG9xNS+h6yNVPbulbay0XTlElCvQs/
+      BgmRjauwRQ6FNOopjrazFW30Gx6hf/ZEZw3VN4KT2nQnwZD251D5iRNYrYVuJgKgJMhVkGJuxU
+      3DlMC3LRQ4eI/gHKpEpmAZ9vSJ/zeyXQvTjtmII8BqDAsw/rXWVFXqogcospxET//snhvGtBu8
+      7TUECgeRkiXigjmEDhnbbf/xxU6jlbfLGMy+fdWwdklN/Y03iw1DP76/LX/G+fJhFsEcYQN1Xh
+      du9VD9xG1w0krWwe8EtDeMXdkYYOzXvFLfLZ/LXKICmK8jti2HuPwuAlo6P+XyBtb7WWWFBVBc
+      FyeYWM0C0VDKaJg/o2XwR67CJN65d1qaPEEhqx51PGVsnOFmrDZkTiZe8QTnZ0NnTMfWqFHSEK
+      +6Z7+xqrWwK4gj5TrJZiAxXAw0EurbYnkI5ccrxKf9dJdQJuhoW7DVxXxSagfSd4IOn/TXSPOD
+      CKHqqCcctFvGhDRSlJVT+/okstkSROLhaGPdv4aLLBi7L+s04AJSzrkJebKfgfF/h8w6d9JfCy
+      APpBRlUiRb6l7vk8lDExR4odLZFmJsswtbpjjVFhhyZOnuZn+8GlmgotYfIABkvJayFGtPgJeB
+      EQLcqCSugMbUUzL4E=
