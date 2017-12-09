@@ -1,34 +1,54 @@
-language: C
-
-notifications:
-  email: false
+---
+language: python # pip needed
 
 sudo: required
 
+services:
+  - docker
+
+addons:
+  apt:
+    sources:
+      - debian-sid
+    packages:
+      - shellcheck # code review tool
+
 env:
-    matrix:
-        - HOST_CLOUD=gce_clean_images.sh
-        - HOST_CLOUD=aws_clean_images.sh
-        - HOST_CLOUD=os_clean_images.sh
-        - HOST_CLOUD=az_clean_images.sh
+  global:
+    - YAMLLINT_VERSION=1.8.1
+  matrix:
+    - CRON_SCRIPT=gce_clean_images.sh
+    - CRON_SCRIPT=aws_clean_images.sh
+    - CRON_SCRIPT=os_clean_images.sh
+    - CRON_SCRIPT=az_clean_images.sh
 
 before_install:
-    # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
-    # To be removed in future revisions once bug is solved
-    - sudo rm -f /etc/boto.cfg
+  # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
+  # To be removed in future revisions once bug is solved
+  - sudo rm -f /etc/boto.cfg
 
-install: true
+  # Install code review tools
+  - sudo pip install --upgrade pip
+  - >
+    sudo pip install
+    ansible-lint=="${ANSIBLE_LINT_VERSION}"
+    yamllint=="${YAMLLINT_VERSION}"
 
-before_script:
-    # Installing common tools (pip and jq) and check bash scripts
-    - sudo apt-get update
-    - sudo apt-get install shellcheck jq python-pip -y
-    - pip -V
-    - pip install --upgrade pip
-    - shellcheck $(find . -type f -name "*.sh")
+  # Check
+  # check Shell
+  - shellcheck *.sh
+  - docker run -v "$(pwd)":/sh -w /sh jamesmstone/shfmt -i 2 -w *.sh
+  - git diff --exit-code
+  # check YAML
+  - yamllint -c .yamllint.yml -s .travis.yml
+
+install:
+  # Installing jq
+  - sudo apt-get update
+  - sudo apt-get install jq -y
 
 script:
-    - ./$HOST_CLOUD
+  - ./$CRON_SCRIPT
 
 notifications:
   email: false
