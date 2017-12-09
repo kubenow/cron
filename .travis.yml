@@ -26,9 +26,9 @@ env:
     - CRON_SCRIPT=az_clean_images.sh
 
 before_install:
-    # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
-    # To be removed in future revisions once bug is solved
-    - sudo rm -f /etc/boto.cfg
+  # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
+  # To be removed in future revisions once bug is solved
+  - sudo rm -f /etc/boto.cfg
 
 install:
   # Install code review tools
