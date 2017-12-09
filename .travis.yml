@@ -1,5 +1,5 @@
 ---
-language: python # pip needed
+language: C
 
 sudo: required
 
@@ -12,6 +12,8 @@ addons:
       - debian-sid
     packages:
       - shellcheck # code review tool
+      - jq
+      - python-pip
 
 env:
   global:
@@ -24,16 +26,22 @@ env:
     - CRON_SCRIPT=az_clean_images.sh
 
 before_install:
-  # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
-  # To be removed in future revisions once bug is solved
-  - sudo rm -f /etc/boto.cfg
+    # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
+    # To be removed in future revisions once bug is solved
+    - sudo rm -f /etc/boto.cfg
 
+install:
   # Install code review tools
   - sudo pip install --upgrade pip
   - >
     sudo pip install
     ansible-lint=="${ANSIBLE_LINT_VERSION}"
     yamllint=="${YAMLLINT_VERSION}"
+
+before_script:
+  # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
+  # To be removed in future revisions once bug is solved
+  - sudo rm -f /etc/boto.cfg
 
   # Check
   # check Shell
@@ -42,11 +50,6 @@ before_install:
   - git diff --exit-code
   # check YAML
   - yamllint -c .yamllint.yml -s .travis.yml
-
-install:
-  # Installing jq
-  - sudo apt-get update
-  - sudo apt-get install jq -y
 
 script:
   - ./$CRON_SCRIPT
