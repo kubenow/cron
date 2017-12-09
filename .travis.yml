@@ -39,10 +39,6 @@ install:
     yamllint=="${YAMLLINT_VERSION}"
 
 before_script:
-  # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
-  # To be removed in future revisions once bug is solved
-  - sudo rm -f /etc/boto.cfg
-
   # Check
   # check Shell
   - shellcheck *.sh
