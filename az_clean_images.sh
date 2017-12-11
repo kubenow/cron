@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
-set -e
-
 # Installing Azure command-line client
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" |
   sudo tee /etc/apt/sources.list.d/azure-cli.list
@@ -10,6 +7,9 @@ echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy ma
 sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
 
 sudo apt-get update && sudo apt-get install apt-transport-https azure-cli -y
+
+# Exit immediately if a command exits with a non-zero status
+set -e
 
 echo -e "----------------------------------\n   $(date)   \n----------------------------------"
 del_date=$(date +"%Y-%m-%d" --date="1 days ago")
