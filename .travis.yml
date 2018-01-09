@@ -11,6 +11,7 @@ addons:
     sources:
       - debian-sid
     packages:
+      - dpkg
       - shellcheck # code review tool
       - jq
       - python-pip
@@ -32,6 +33,7 @@ before_install:
 
 install:
   # Install code review tools
+  # - sudo apt-get install dpkg
   - sudo pip install --upgrade pip
   - >
     sudo pip install
