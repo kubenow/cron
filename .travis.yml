@@ -6,15 +6,6 @@ sudo: required
 services:
   - docker
 
-addons:
-  apt:
-    sources:
-      - debian-sid
-    packages:
-      - shellcheck # code review tool
-      - jq
-      - python-pip
-
 env:
   global:
     - ANSIBLE_LINT_VERSION=3.4.15
@@ -31,7 +22,11 @@ before_install:
   - sudo rm -f /etc/boto.cfg
 
 install:
-  # Install code review tools
+  # Install necessary global packages and code review tools
+
+  # Due to this issue https://bugs.launchpad.net/ubuntu/+source/dpkg/+bug/1730627
+  # we had to remove below packages from the travis' addons section
+  - sudo apt-get install shellcheck jq python-pip -y
   - sudo pip install --upgrade pip
   - >
     sudo pip install
