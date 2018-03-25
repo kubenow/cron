@@ -15,9 +15,6 @@ bash aws_del_old_snaps.sh
 # Current list of regions we work with
 aws_regions=("ca-central-1" "eu-central-1" "eu-west-1" "eu-west-2" "us-east-1" "us-east-2" "us-west-1" "us-west-2")
 
-# Debugging: - All of sudden ec2 api is not working with: TO BE REMOVED
-# "ca-central-1" "eu-central-1" "eu-west-2" "us-east-2"
-
 echo -e "----------------------------------\n   $(date)   \n----------------------------------"
 del_date=$(date +"%Y-%m-%d" --date="1 days ago")
 echo -e "Amazon Web Services - Looking for old KubeNow's AMIs:\n "
