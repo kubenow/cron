@@ -5,8 +5,8 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Installing necessary tool for the script: awscli and jq
-pip install awscli --upgrade --user
+# Installing necessary tool for the script: awscli
+pip install -qq awscli --upgrade
 
 # Execute different script only for AWS and before main ones
 # Reason is to avoid concurrent APIs call (e.g. deletion of an AMI and checking if that AMI exists)
