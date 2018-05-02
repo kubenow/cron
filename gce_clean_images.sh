@@ -18,7 +18,7 @@ echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 
 # Install the Cloud SDK
-sudo apt-get update && sudo apt-get install google-cloud-sdk -y
+sudo apt-get -qq update && sudo apt-get -qq install google-cloud-sdk -y
 
 echo "$GCE_KEY" >./account_file.json
 
@@ -39,7 +39,7 @@ sed -i '1s/^/{"Images":/' /tmp/gce_out_images.json
 sed -i "$ a }" /tmp/gce_out_images.json
 
 # Reason why we are NOT directly using grep -c -i "name" is because of the set -e command
-# In fact when there are not test or current images, the counter is correctly set to 0, but grep's exit code is -1
+# In fact when there are no test or current images, the counter is correctly set to 0, but grep's exit code is -1
 tot_no_images=$(grep -i "name" </tmp/gce_out_images.json | wc -l)
 counter_del_img=0
 

@@ -1,5 +1,5 @@
 ---
-language: C
+language: python # need for pip
 
 sudo: required
 
@@ -10,24 +10,23 @@ env:
   global:
     - ANSIBLE_LINT_VERSION=3.4.15
     - YAMLLINT_VERSION=1.8.1
+    - PIP=9.0.3
+    # Workaround to build on google - See https://github.com/travis-ci/travis-ci/issues/7940
+    - BOTO_CONFIG=/dev/null
+
   matrix:
     - CRON_SCRIPT=gce_clean_images.sh
     - CRON_SCRIPT=aws_clean_images.sh
     - CRON_SCRIPT=os_clean_images.sh
     - CRON_SCRIPT=az_clean_images.sh
 
-before_install:
-  # Due to the following Bug: https://github.com/travis-ci/travis-ci/issues/7940
-  # To be removed in future revisions once bug is solved
-  - sudo rm -f /etc/boto.cfg
-
 install:
   # Install necessary global packages and code review tools
 
   # Due to this issue https://bugs.launchpad.net/ubuntu/+source/dpkg/+bug/1730627
   # we had to remove below packages from the travis' addons section
-  - sudo apt-get install shellcheck jq python-pip -y
-  - sudo pip install --upgrade pip
+  - sudo apt-get install -qq shellcheck jq -y
+  - sudo pip install -qq --upgrade pip=="${PIP}"
   - >
     sudo pip install
     ansible-lint=="${ANSIBLE_LINT_VERSION}"
