@@ -45,8 +45,10 @@ script:
   - ./$CRON_SCRIPT
 
 notifications:
-  email: false
+  email: true
   slack:
+    on_success: change
+    on_failure: always
     secure: >
       plMWyTiljmwpUuA6mb8Q914+M25wxmuz+j3fgb2ZOmRsUG9xNS+h6yNVPbulbay0XTlElCvQs/
       BgmRjauwRQ6FNOopjrazFW30Gx6hf/ZEZw3VN4KT2nQnwZD251D5iRNYrYVuJgKgJMhVkGJuxU
