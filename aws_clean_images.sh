@@ -8,6 +8,10 @@ set -e
 # Installing necessary tool for the script: awscli
 pip install -qq awscli --upgrade
 
+# Account/Owner ID (also good for possible future migration)
+AWS_OWNER_ID=$(aws sts get-caller-identity --output text --query 'Account')
+export AWS_OWNER_ID
+
 # Execute different script only for AWS and before main ones
 # Reason is to avoid concurrent APIs call (e.g. deletion of an AMI and checking if that AMI exists)
 bash aws_del_old_snaps.sh
@@ -28,7 +32,7 @@ for reg in ${aws_regions[*]}; do
 
   # Extracting both KubeNow images that are flagged as "test" or "current"
   # Using tee and wc -l (which often returns 0) because of set -e. In case aws and grep return 1
-  aws ec2 describe-images --filters "Name=name,Values=kubenow-*-*" "Name=owner-id,Values=105135433346" | tee /tmp/aws_out_images.json
+  aws ec2 describe-images --filters "Name=name,Values=kubenow-*-*" "Name=owner-id,Values=$AWS_OWNER_ID" | tee /tmp/aws_out_images.json
   tot_no_amis=$(grep -i "imageid" </tmp/aws_out_images.json | wc -l)
   counter_del_img=0
   counter_del_snap=0
