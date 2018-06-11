@@ -15,7 +15,7 @@ for reg in ${aws_regions[*]}; do
   echo -e "Current region is: $AWS_DEFAULT_REGION\n"
 
   # Extracting both KubeNow images that are flagged as "test" or "current"
-  aws ec2 describe-snapshots --owner-ids 105135433346 --query 'Snapshots[*].{ID:SnapshotId,Description:Description}' >/tmp/aws_snaps.json
+  aws ec2 describe-snapshots --owner-ids "$AWS_OWNER_ID" --query 'Snapshots[*].{ID:SnapshotId,Description:Description}' >/tmp/aws_snaps.json
   sed -i '1s/^/{"Snapshots":/' /tmp/aws_snaps.json
   sed -i "$ a }" /tmp/aws_snaps.json
   tot_no_snaps=$(grep -c -i ID </tmp/aws_snaps.json)
